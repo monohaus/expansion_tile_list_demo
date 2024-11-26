@@ -12,14 +12,6 @@ class LayoutContainer extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints viewportConstraints) {
         DeviceType deviceType = DeviceType.getDeviceType(context);
-        final isPortrait =
-            MediaQuery.of(context).orientation == Orientation.portrait;
-        print('deviceType: $deviceType');
-        var width = MediaQuery.of(context).size.width;
-        var height = MediaQuery.of(context).size.height;
-        print('width: $width');
-        print('height: $height');
-
         var view = Center(
             child: SizedBox(
           width: (deviceType.isDesktop) ? 600 : null,
@@ -53,8 +45,6 @@ enum DeviceType {
 
   static DeviceType getDeviceType(BuildContext context) {
     final double size = MediaQuery.of(context).size.width;
-    print('orientationSize: $size');
-
     DeviceType deviceType = DeviceType.desktop;
     if (size < 600) {
       deviceType = DeviceType.phone;

@@ -5,7 +5,7 @@ class LayoutContainer extends StatelessWidget {
   final bool scrollable;
 
   const LayoutContainer(
-      {super.key, required this.child, this.scrollable = true});
+      {super.key, required this.child, this.scrollable = false});
 
   @override
   Widget build(BuildContext context) {

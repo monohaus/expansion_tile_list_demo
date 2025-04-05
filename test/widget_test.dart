@@ -6,10 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:expansion_tile_list_demo/src/app.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:expansion_tile_list_demo/main.dart';
 
 void main() {
   testWidgets('App should build without crashing', (WidgetTester tester) async {
@@ -19,6 +16,4 @@ void main() {
     // Verify that the title is displayed.
     expect(find.text('Expansion Tile List'), findsOneWidget);
   });
-
 }
-

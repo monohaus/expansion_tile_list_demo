@@ -6,12 +6,13 @@ import 'package:flutter_spinbox/flutter_spinbox.dart';
 typedef TileData = ({String title, IconData icon, List<Widget> children});
 
 enum ControlType {
-  numeric_spinner,
-  bool_switch,
-  dynamic_action,
-  dynamic_radio,
-  list_toggle_buttons,
-  dynamic_custom,
+  numericSpinner,
+  boolSwitch,
+  dynamicAction,
+  dynamicRadio,
+  dynamicIconButton,
+  listToggleButtons,
+  dynamicCustom,
 }
 
 class TileControlItem extends StatefulWidget {
@@ -21,18 +22,22 @@ class TileControlItem extends StatefulWidget {
     this.description,
     this.icon,
     this.controlBuilder,
-    this.controlType = ControlType.bool_switch,
+    this.controlType = ControlType.boolSwitch,
     //this.controlName,
     this.controlValue,
     this.controlGroup,
+    this.enabled = true,
     this.onEvent,
   });
 
+  //final bool enable
   final String label;
   final String? description;
   final IconData? icon;
   final WidgetBuilder? controlBuilder;
   final ControlType controlType;
+
+  final bool enabled;
 
   //final String? controlName;
   final dynamic controlValue;
@@ -50,6 +55,7 @@ class TileControlItem extends StatefulWidget {
     ControlType? controlType,
     dynamic controlValue,
     dynamic controlGroup,
+    bool? enabled,
     ValueChanged<dynamic>? onEvent,
   }) {
     return TileControlItem(
@@ -60,6 +66,7 @@ class TileControlItem extends StatefulWidget {
       controlType: controlType ?? this.controlType,
       controlValue: controlValue ?? this.controlValue,
       controlGroup: controlGroup ?? this.controlGroup,
+      enabled: enabled ?? this.enabled,
       onEvent: onEvent ?? this.onEvent,
     );
   }
@@ -88,10 +95,10 @@ class _TileControlItemState extends State<TileControlItem> {
 
   void _updateControlValue([dynamic currentValue]) {
     currentValue ??= widget.controlValue;
-    if (widget.controlType == ControlType.bool_switch) {
+    if (widget.controlType == ControlType.boolSwitch) {
       _controlValue = bool.tryParse(currentValue?.toString() ?? "false",
           caseSensitive: false);
-    } else if (widget.controlType == ControlType.numeric_spinner) {
+    } else if (widget.controlType == ControlType.numericSpinner) {
       var value =
           double.tryParse(currentValue?.toString() ?? double.nan.toString());
       _controlValue = [
@@ -103,7 +110,7 @@ class _TileControlItemState extends State<TileControlItem> {
       ].contains(value)
           ? 1.0
           : value;
-    } else if (widget.controlType == ControlType.list_toggle_buttons) {
+    } else if (widget.controlType == ControlType.listToggleButtons) {
       int size = widget.controlGroup is List
           ? (widget.controlGroup as List).length
           : 0;
@@ -124,18 +131,20 @@ class _TileControlItemState extends State<TileControlItem> {
   @override
   Widget build(BuildContext context) {
     switch (widget.controlType) {
-      case ControlType.bool_switch:
+      case ControlType.boolSwitch:
         return _buildSwitchListTile(context);
-      case ControlType.numeric_spinner:
+      case ControlType.numericSpinner:
         return _buildListTile(context, _buildSpinBox(context), 0.35);
-      case ControlType.dynamic_action:
+      case ControlType.dynamicAction:
         return _buildListTile(context, _buildActionChip(context), 0.35);
-      case ControlType.dynamic_radio:
+      case ControlType.dynamicIconButton:
+        return _buildListTile(context, _buildIconButton(context), 0.35);
+      case ControlType.dynamicRadio:
         return _buildRadioListTile(context);
-      case ControlType.list_toggle_buttons:
+      case ControlType.listToggleButtons:
         return _buildListTile(context, _buildToggleButtons(context),
-            max(((_controlValue as List<bool>).length / 10) + 0.20,0.50) );
-      case ControlType.dynamic_custom:
+            max(((_controlValue as List<bool>).length / 10) + 0.20, 0.50));
+      case ControlType.dynamicCustom:
         return widget.controlBuilder?.call(context) ?? const SizedBox();
     }
   }
@@ -144,6 +153,7 @@ class _TileControlItemState extends State<TileControlItem> {
   Widget _buildListTile(BuildContext context,
       [Widget? child, widthFactor = 0.50]) {
     return ListTile(
+      enabled: widget.enabled,
       title: Text(widget.label),
       subtitle: widget.description != null ? Text(widget.description!) : null,
       //trailing: (widget.controlBuilder??defaultControlBuilder)?.call(context),
@@ -160,66 +170,106 @@ class _TileControlItemState extends State<TileControlItem> {
       title: Text(widget.label),
       subtitle: widget.description != null ? Text(widget.description!) : null,
       value: _controlValue is bool ? _controlValue : false,
-      onChanged: (value) {
-        setState(() {
-          _controlValue = value;
-        });
-        widget.onEvent?.call(value);
-      },
+      onChanged: widget.enabled
+          ? (value) {
+              setState(() {
+                _controlValue = value;
+                widget.onEvent?.call(value);
+              });
+            }
+          : null,
     );
   }
 
   Widget _buildActionChip(BuildContext context) {
     return ActionChip(
-      label: widget.icon == null ? Text(widget.label) : Text(""),
-      avatar: widget.icon != null ? Icon(widget.icon) : null,
-      onPressed: () {
-        /*setState(() {
+      label: widget.icon == null ? Text(widget.label) : const Text(""),
+      avatar: widget.icon == null ? null : Icon(widget.icon),
+      onPressed: widget.enabled
+          ? () {
+              /*setState(() {
           _controlValue = true;
         });*/
-        print("ActionChip onPressed");
-        _controlValue = true;
-        widget.onEvent?.call(true);
-      },
+              _controlValue = true;
+              widget.onEvent?.call(true);
+            }
+          : null,
+    );
+  }
+
+  Widget _buildIconButton(BuildContext context) {
+    const iconSize = 22.0;
+    return IconButton(
+      icon: widget.icon != null ? Icon(widget.icon) : const Icon(Icons.build),
+      iconSize: iconSize,
+      tooltip: widget.label,
+      style: ButtonStyle(
+        backgroundColor: const WidgetStatePropertyAll(Colors.white),
+        foregroundColor: const WidgetStatePropertyAll(Colors.blueAccent),
+        minimumSize:
+            const WidgetStatePropertyAll(Size(iconSize * 3, iconSize * 2)),
+        // Background color
+        side: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return const BorderSide(color: Colors.black12, width: 3);
+          }
+          if (states.contains(WidgetState.pressed)) {
+            return const BorderSide(color: Colors.blue, width: 3);
+          }
+          return const BorderSide(color: Colors.black26, width: 3);
+        }),
+      ),
+      onPressed: widget.enabled
+          ? () {
+              _controlValue = true;
+              widget.onEvent?.call(true);
+            }
+          : null,
     );
   }
 
   Widget _buildRadioListTile(BuildContext context) {
-    return RadioListTile(
+    return RadioListTile<dynamic>(
       title: Text(widget.label),
       subtitle: widget.description != null ? Text(widget.description!) : null,
       value: _controlValue,
       groupValue: widget.controlGroup,
       selected: _controlValue == widget.controlGroup,
       controlAffinity: ListTileControlAffinity.trailing,
-      onChanged: (value) {
-        setState(() {
-          _controlValue = value;
-        });
-        widget.onEvent?.call(value);
-      },
+      onChanged: widget.enabled
+          ? (value) {
+              setState(() {
+                _controlValue = value;
+                widget.onEvent?.call(value);
+              });
+            }
+          : null,
     );
   }
 
   Widget _buildToggleButtons(BuildContext context) {
-    var toggleButtons =  ToggleButtons(
+    var toggleButtons = ToggleButtons(
       borderRadius: BorderRadius.circular(30),
-      borderWidth: 0,
-      borderColor: Colors.transparent,
-      selectedBorderColor: Colors.transparent, //Theme.of(context).colorScheme.primary,
+      borderWidth: 5,
+      selectedBorderColor: Colors.blueAccent,
+      //Theme.of(context).colorScheme.primary,
+      //selectedBorderColor: const Color(0x30000000),
+      disabledBorderColor: const Color(0x14000000),
       isSelected: _controlValue is List<bool> ? _controlValue : [],
       constraints: const BoxConstraints(
         minWidth: 40.0,
         minHeight: 40.0,
       ),
-      onPressed: (index) {
-        setState(() {
-          for (int i = 0; i < _controlValue.length; i++) {
-            _controlValue[i] = i == index ? !_controlValue[index] : false;
-          }
-        });
-        widget.onEvent?.call(_controlValue[index] ? index : -1);
-      },
+      onPressed: widget.enabled
+          ? (index) {
+              setState(() {
+                for (int i = 0; i < _controlValue.length; i++) {
+                  _controlValue[i] = i == index ? !_controlValue[index] : false;
+                }
+                widget.onEvent?.call(_controlValue[index] ? index : -1);
+              });
+            }
+          : null,
       children: [
         ...(widget.controlGroup is List ? (widget.controlGroup as List) : [])
             .map(
@@ -228,7 +278,8 @@ class _TileControlItemState extends State<TileControlItem> {
       ],
     );
 
-    return Container(
+    return toggleButtons;
+    /*return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -239,7 +290,7 @@ class _TileControlItemState extends State<TileControlItem> {
         ),
       ),
       child: toggleButtons,
-    );
+    );*/
   }
 
   Widget _buildSpinBox(BuildContext context) {
@@ -264,12 +315,14 @@ class _TileControlItemState extends State<TileControlItem> {
       keyboardType: TextInputType.none,
       incrementIcon: const Icon(Icons.keyboard_arrow_up, size: 20),
       decrementIcon: const Icon(Icons.keyboard_arrow_down, size: 20),
-      onChanged: (value) {
-        setState(() {
-          _controlValue = value;
-        });
-        widget.onEvent?.call(value);
-      },
+      onChanged: widget.enabled
+          ? (value) {
+              setState(() {
+                _controlValue = value;
+              });
+              widget.onEvent?.call(value);
+            }
+          : null,
       decoration: InputDecoration(
         isDense: true,
         fillColor: Colors.white,

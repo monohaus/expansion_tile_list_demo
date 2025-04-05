@@ -15,7 +15,6 @@ class ItemFeaturesPage extends StatefulWidget {
 }
 
 class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
-  //late final List<TileData> _tileDataList;
   late final List<GlobalKey?> _tileKeys;
   late final List<ExpansionTileController?> _controllers;
   final int _tileCount = 1;
@@ -58,6 +57,7 @@ class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
             ),
             body: SafeArea(
                 child: LayoutContainer(
+              scrollable: false,
               child: _buildFeatures(context),
             ))));
   }
@@ -92,12 +92,12 @@ class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
   }
 
   Widget _buildExpansionTileItem() {
-    var _tileDataList = [
+    final tileDataList = [
       _initAllFeatures(),
     ];
     return Column(
       children: <Widget>[
-        ..._tileDataList.indexed.map((data) {
+        ...tileDataList.indexed.map((data) {
           return _buildExpansionTile(data.$1, data.$2);
         })
       ],
@@ -192,7 +192,7 @@ class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
         TileControlItem(
           label: "Custom Theme",
           description: "Make it look pretty",
-          controlType: ControlType.bool_switch,
+          controlType: ControlType.boolSwitch,
           onEvent: _onUpdateState<bool>((value) => _customTheme = value),
         )
       ]
@@ -215,7 +215,7 @@ class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
         TileControlItem(
           label: "Trailing Icon",
           description: "change the trailing icon",
-          controlType: ControlType.list_toggle_buttons,
+          controlType: ControlType.listToggleButtons,
           controlGroup: trailingIcons,
           onEvent: _onUpdateState<int>((index) =>
               _trailingIcon = index < 0 ? null : trailingIcons[index]),
@@ -224,14 +224,14 @@ class _ItemFeaturesPageState extends State<ItemFeaturesPage> {
           label: "Trailing Animation",
           description:
               "Customize the trailing animation sequence, duration and an optional builder",
-          controlType: ControlType.bool_switch,
+          controlType: ControlType.boolSwitch,
           controlValue: _trailingAnimation,
           onEvent: _onUpdateState<bool>((value) => _trailingAnimation = value),
         ),
         TileControlItem(
           label: "Enable Trailing Animation",
           description: "Disable or enable trailing animation",
-          controlType: ControlType.bool_switch,
+          controlType: ControlType.boolSwitch,
           controlValue: _enableTrailingAnimation,
           onEvent:
               _onUpdateState<bool>((value) => _enableTrailingAnimation = value),

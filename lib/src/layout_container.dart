@@ -12,6 +12,7 @@ class LayoutContainer extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints viewportConstraints) {
         DeviceType deviceType = DeviceType.getDeviceType(context);
+        //print('deviceType: $deviceType');
         var view = Center(
             child: SizedBox(
           width: (deviceType.isDesktop) ? 600 : null,

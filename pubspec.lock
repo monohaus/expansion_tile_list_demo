@@ -55,7 +55,7 @@ packages:
       path: "../expansion_tile_list"
       relative: true
     source: path
-    version: "2.0.0-rc.1"
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:

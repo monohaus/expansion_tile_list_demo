@@ -39,7 +39,7 @@ class _ListFeaturesPageState extends State<ListFeaturesPage> {
   Icon? _dragHandleIcon;
   Icon? _customDragHandleIcon;
   DragHandlePlacement _dragHandlePlacement = DragHandlePlacement.none;
-  HorizontalAlignment? _dragHandleAlignment;
+  DragHandleAlignment? _dragHandleAlignment;
 
   //
   late final ExpansionTileListController _controller;
@@ -158,7 +158,7 @@ class _ListFeaturesPageState extends State<ListFeaturesPage> {
       useDelayedDrag: _useDelayedDrag,
       dragHandlePlacement: _dragHandlePlacement,
       dragHandleAlignment:
-          _dragHandleAlignment ?? HorizontalAlignment.centerLeft,
+          _dragHandleAlignment ?? DragHandleAlignment.centerLeft,
       dragHandleBuilder: !customDragHandle && _dragHandleIcon != null
           ? (context, index) => _dragHandleIcon
           : null,
@@ -338,7 +338,7 @@ class _ListFeaturesPageState extends State<ListFeaturesPage> {
     customDragHandle(index) {
       return Container(
         alignment: _dragHandleAlignment?.alignment ??
-            HorizontalAlignment.center.alignment,
+            DragHandleAlignment.center.alignment,
         child: _buildDragHandle(index, child),
       );
     }
@@ -821,9 +821,9 @@ class _ListFeaturesPageState extends State<ListFeaturesPage> {
         iconMapEntry(key, icon, iconColorIf(_customDragHandleIcon == null)));
 
     final dragHandleAlignmentIcons = {
-      HorizontalAlignment.centerLeft: Icons.align_horizontal_left,
+      DragHandleAlignment.centerLeft: Icons.align_horizontal_left,
       //HorizontalAlignment.center: Icons.align_horizontal_center,
-      HorizontalAlignment.centerRight: Icons.align_horizontal_right,
+      DragHandleAlignment.centerRight: Icons.align_horizontal_right,
     }.map((key, icon) => iconMapEntry(key, icon, iconColor));
 
     if (_dragHandleIcon?.icon != null) {
